@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление изображения</title>
+</head>
+<body>
+    <form id="uploadForm" enctype="multipart/form-data">
+				<label for="id">Введите id изображения:</label>
+        <input type="number" id="id" name="id" required /><br/><br/>        
+
+				<input type="file" id="fileInput" name="file"/><br/><br/>
+        <button type="submit">Отправить</button>
+    </form>
+
+    <script>
+    	      document.getElementById('uploadForm').onsubmit = function(event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение формы
+            
+            var formData = new FormData(); // Создаём объект FormData для отправки данных
+            var id = document.getElementById('id').value; // Получаем id
+            var imageFile = document.getElementById('fileInput'); // Получаем выбранный файл изображения
+
+						if (imageFile.files.length === 0) {
+                 alert("Please select a file.");
+                 return;
+             }            
+
+							// Добавляем изображения в FormData
+            	formData.append('file', imageFile.files[0]);
+
+            // Создаем объект JSON для id
+            const jsonData = JSON.stringify({ id: id });
+
+            // Добавляем JSON как текстовое поле в FormData
+            formData.append('json', jsonData);
+
+            const xhr = new XMLHttpRequest(); // Создаем новый объект XMLHttpRequest
+            xhr.open('POST', 'updateFile.php', true); // Настраиваем запрос
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText); // Парсим JSON-ответ
+                    alert(response.message); // Отображаем сообщение о результате
+                } else {
+										alert('Ошибка при загрузке данных.');
+                }
+            };
+
+            xhr.onerror = function() {
+                alert('Ошибка во время запроса.');
+            };
+
+            xhr.send(formData); // Отправляем данные
+        };
+		</script>
+</body>
+</html>
