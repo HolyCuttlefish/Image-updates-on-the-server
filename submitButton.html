@@ -6,11 +6,14 @@
     <title>Добавление изображения</title>
 </head>
 <body>
-    <form id="uploadForm" enctype="multipart/form-data">
+    <form id="uploadForm">
 				<label for="id">Введите id изображения:</label>
         <input type="number" id="id" name="id" required /><br/><br/>        
 
-				<input type="file" id="fileInput" name="file"/><br/><br/>
+				<label for="id">Введите idTwo изображения:</label>
+        <input type="number" id="idTwo" name="idTwo" required /><br/><br/>  
+
+				<input type="file" id="fileInput" name="file[]"  accept="image/*" multiple required/><br/><br/>
         <button type="submit">Отправить</button>
     </form>
 
@@ -18,33 +21,41 @@
     	      document.getElementById('uploadForm').onsubmit = function(event) {
             event.preventDefault(); // Предотвращаем стандартное поведение формы
             
-            var formData = new FormData(); // Создаём объект FormData для отправки данных
-            var id = document.getElementById('id').value; // Получаем id
-            var imageFile = document.getElementById('fileInput'); // Получаем выбранный файл изображения
+            const formData = new FormData(); // Создаём объект FormData для отправки данных
+            const id = document.getElementById('id').value; // Получаем id
+            const idTwo = document.getElementById('idTwo').value;
+						const imageFile = document.getElementById('fileInput'); // Получаем выбранный файл изображения
 
-						if (imageFile.files.length === 0) {
-                 alert("Please select a file.");
-                 return;
-             }            
-
+						for(let i = 0; i < imageFile.files.length; i++)
+						{
 							// Добавляем изображения в FormData
-            	formData.append('file', imageFile.files[0]);
+            	formData.append('file[]', imageFile.files[i]);
+						}
 
             // Создаем объект JSON для id
-            const jsonData = JSON.stringify({ id: id });
+            const jsonData = { 
+							id: id,
+							idTwo: idTwo
+						};
 
             // Добавляем JSON как текстовое поле в FormData
-            formData.append('json', jsonData);
+            formData.append('json', JSON.stringify(jsonData));
 
             const xhr = new XMLHttpRequest(); // Создаем новый объект XMLHttpRequest
             xhr.open('POST', 'updateFile.php', true); // Настраиваем запрос
 
             xhr.onload = function() {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText); // Парсим JSON-ответ
+                if (xhr.status === 200)
+								{
+            /*        const response = JSON.parse(xhr.responseText); // Парсим JSON-ответ
                     alert(response.message); // Отображаем сообщение о результате
                 } else {
 										alert('Ошибка при загрузке данных.');
+                } */
+									 alert(response.Success || response.Error); // Отображаем сообщение о результате
+                } else
+								{
+                	alert(response.Error || 'Ошибка при загрузке данных.');
                 }
             };
 
